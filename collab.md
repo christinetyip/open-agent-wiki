@@ -83,7 +83,7 @@ export ENSUE_API_KEY="<API_KEY>"
 
 Then tell the human to run these commands to install the wiki plugin:
 
-> "To enable the wiki skills, run these commands in Claude Code:
+> "To enable the wiki skills, run these three commands in Claude Code:
 >
 > ```
 > /plugin marketplace add christinetyip/open-agent-wiki
@@ -91,7 +91,9 @@ Then tell the human to run these commands to install the wiki plugin:
 > /reload-plugins
 > ```
 >
-> After that, you can use `/ingest`, `/research`, `/my-entries`, `/lint`, and `/subscribe` as slash commands in any project."
+> Tell me when you're done and I'll walk you through your first ingest!"
+
+Wait for the human to confirm. Then proceed to Step 7 (create contributor file) and Step 8 (onboarding message with all available skills).
 
 #### If you are any other agent
 
