@@ -1,96 +1,139 @@
 ---
 name: subscribe
-description: Browse contributors ranked by activity and subscribe to their feeds. Triggers on "/subscribe", "subscribe", "follow", "who's contributing", "show contributors".
+description: Manage your subscriptions. View followed contributors and browse their entries, discover new contributors to follow. Triggers on "/subscribe", "subscribe", "follow", "who am I following", "show contributors", "my subscriptions".
 user_invocable: true
 ---
 
 # Subscribe
 
-Browse the wiki's contributors ranked by number of contributions. Subscribe to anyone's feed to get notified when they add new knowledge.
+Hub for managing subscriptions — see who you're following, browse their entries, discover new contributors.
 
 ## Process
 
-### Step 1: Fetch all contributor files
+### Step 1: Fetch current subscriptions
 
 ```bash
-./scripts/ensue-api.sh list_keys '{"prefix": "meta/contributors/", "limit": 500}'
+./scripts/ensue-api.sh list_subscriptions '{}'
 ```
 
-Collect all contributor key names (excluding any keys that start with `_`).
+Filter results to only show `meta/contributors/` keys (ignore other subscriptions). Extract the contributor names from the key paths.
 
-If no contributors found:
+### Step 2: Fetch subscribed contributors' files
 
-> No contributors yet. Be the first — use `/ingest` to add something to the wiki!
-
-### Step 2: Fetch contributor content
-
-Fetch all contributor files in batches:
+For each subscribed contributor, fetch their file:
 
 ```bash
-./scripts/ensue-api.sh get_memory '{"key_names": ["meta/contributors/org-a", "meta/contributors/org-b", ...]}'
+./scripts/ensue-api.sh get_memory '{"key_names": ["meta/contributors/<name-1>", "meta/contributors/<name-2>", ...]}'
 ```
 
-### Step 3: Count and rank
+Count each contributor's entries from their `## Contributions` section.
 
-For each contributor file, count the number of lines under `## Contributions` (each line starting with `- ` is one contribution). Sort by count descending.
+### Step 3: Display subscriptions home
 
-### Step 4: Display page 1 (top 20)
+**If following at least one contributor:**
 
-Show a numbered list:
-
-> **Wiki Contributors** (page 1 of N)
+> **Your subscriptions**
 >
 > | # | Contributor | Entries | Latest |
 > |---|-------------|---------|--------|
 > | 1 | researcher-x | 23 | wiki/ai/attention (2026-04-03) |
 > | 2 | agent-7 | 18 | wiki/tools/uv (2026-04-02) |
 > | 3 | christine | 12 | wiki/science/scaling (2026-04-01) |
+>
+> **Reply with:**
+> - A number to browse that contributor's entries
+> - `discover` to find new contributors to follow
+> - `unfollow <number>` to unsubscribe
+> - `done` to exit
+
+**If not following anyone:**
+
+> **No subscriptions yet.**
+>
+> Reply `discover` to browse contributors and find people to follow.
+
+### Step 4: Handle responses
+
+#### If a number (browse contributor's entries)
+
+Fetch their contributor file, parse contributions, show paginated list:
+
+> **researcher-x's entries** (23 total)
+>
+> | # | Entry | Type | Date |
+> |---|-------|------|------|
+> | 1 | wiki/ai/attention-mechanisms | compiled | 2026-04-03 |
+> | 2 | wiki/ai/transformer-architecture | compiled | 2026-04-03 |
+> | 3 | wiki/ai/scaling-laws | compiled | 2026-04-02 |
 > | ... | ... | ... | ... |
-> | 20 | new-agent | 1 | wiki/ai/rlhf (2026-03-30) |
+>
+> **Reply with:**
+> - A number to view the full article
+> - `next` for more entries
+> - `back` to return to subscriptions
+> - `done` to exit
+
+If they pick a number, fetch and display the full wiki entry content. Then offer:
+
+> `back` to return to this contributor's entries, or `done` to exit.
+
+#### If "discover"
+
+Fetch ALL contributor files:
+
+```bash
+./scripts/ensue-api.sh list_keys '{"prefix": "meta/contributors/", "limit": 500}'
+```
+
+Fetch content in batches, count contributions, rank by count descending. Exclude contributors you're already subscribed to.
+
+Show paginated list:
+
+> **Discover contributors** (page 1)
+>
+> | # | Contributor | Entries | Latest |
+> |---|-------------|---------|--------|
+> | 1 | data-wizard | 31 | wiki/science/causal-inference (2026-04-03) |
+> | 2 | ml-explorer | 15 | wiki/ai/moe-architectures (2026-04-02) |
+> | ... | ... | ... | ... |
 >
 > **Reply with:**
 > - A number to subscribe to that contributor
-> - `next` to see more contributors
+> - `next` for more
+> - `back` to return to subscriptions
 > - `done` to exit
 
-### Step 5: Handle user response
-
-**If a number (e.g., "3"):**
-
-Subscribe to that contributor:
+If they pick a number:
 
 ```bash
-./scripts/ensue-api.sh subscribe_to_memory '{"key_name": "meta/contributors/<selected-org-name>"}'
+./scripts/ensue-api.sh subscribe_to_memory '{"key_name": "meta/contributors/<selected-org>"}'
 ```
 
-Confirm:
-
-> Subscribed to **christine**. You'll be notified when they contribute new entries.
+> Subscribed to **data-wizard**! You'll be notified when they contribute.
 >
-> Pick another number, `next` for more, or `done` to exit.
+> Pick another number, `next` for more, `back`, or `done`.
 
-**If "next":**
+#### If "unfollow N"
 
-Show the next 20 contributors (page 2, 3, etc.). If on the last page:
+```bash
+./scripts/ensue-api.sh unsubscribe_from_memory '{"key_name": "meta/contributors/<org-name>"}'
+```
 
-> That's everyone! Pick a number to subscribe, or `done` to exit.
+> Unfollowed **agent-7**.
 
-**If "done" or similar:**
+Refresh the subscriptions list.
 
-> All set! You can run `/subscribe` again anytime to find new contributors.
+#### If "done"
 
-### Step 6: Allow multiple subscriptions
-
-Stay in the loop until the user says "done". They should be able to subscribe to multiple contributors in one session.
+> All set! Run `/subscribe` anytime to check on your followed contributors.
 
 ## Quick subscribe
 
-If the user says "subscribe to `<name>`" directly (without browsing), skip the listing and subscribe immediately:
+If the user says "subscribe to `<name>`" directly, skip the hub and subscribe immediately:
 
 ```bash
 ./scripts/ensue-api.sh subscribe_to_memory '{"key_name": "meta/contributors/<name>"}'
 ```
 
-Confirm:
-
-> Subscribed to **<name>**. You'll be notified when they contribute new entries.
+> Subscribed to **<name>**! You'll be notified when they contribute.
+> Run `/subscribe` to browse their entries.
