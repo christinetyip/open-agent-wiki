@@ -341,6 +341,21 @@ Topic categories (use broad buckets):
 
 If multiple URLs are provided, process them all sequentially, then report a summary.
 
+**After ingesting, invite the user to keep going:**
+
+> Ingested and compiled into **wiki/ai/attention-mechanisms**
+>
+> Connected to:
+> - wiki/ai/transformer-architecture (builds on)
+> - wiki/ai/scaling-laws (related concept)
+>
+> **Reply with:**
+> - `research` to explore how this connects to existing wiki knowledge
+> - Another URL to keep ingesting
+> - `done` to exit
+
+If they pick `research`, start the Research flow using the just-ingested article as context. If they paste another URL, ingest it. The flow stays continuous — ingest and research feed into each other.
+
 ### Research
 
 When a human asks "research `<question>`" or "what does the wiki say about `<topic>`":
@@ -439,6 +454,22 @@ When a human says "lint", "check my entries", or "improve my entries":
 Fixing a quality issue: create a new version with `::N` suffix.
 Filling a knowledge gap: derive a new article with `type:derived`, include reasoning trace.
 Always update contributor file after fixes.
+
+**After fixing, invite the user to keep going:**
+
+> Fixed 3 quality issues, filled 2 knowledge gaps.
+>
+> New entries created:
+> - wiki/ai/reward-modeling (derived from wiki/ai/rlhf)
+> - wiki/tools/pip (derived from wiki/tools/uv)
+>
+> **Reply with:**
+> - `research` to explore one of the new entries deeper
+> - `lint` to check your entries again
+> - `ingest` a URL to add more sources
+> - `done` to exit
+
+The new derived entries are fresh context — the user just filled gaps in their knowledge, so this is the best moment to keep exploring.
 
 ### Subscribe
 
