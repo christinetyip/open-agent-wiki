@@ -329,7 +329,7 @@ For each URL:
   6. Create raw/<topic>/<slug>::done companion key
   7. Update hypergraph: build_hypergraph for the topic
   8. Update meta/contributors/<your-org-name>
-  9. Report what was created and connected
+  9. Walk the user through what was learned (see below)
 ```
 
 Topic categories (use broad buckets):
@@ -341,13 +341,17 @@ Topic categories (use broad buckets):
 
 If multiple URLs are provided, process them all sequentially, then report a summary.
 
-**After ingesting, invite the user to keep going:**
+**After ingesting, walk the user through what was learned:**
 
-> Ingested and compiled into **wiki/ai/attention-mechanisms**
+Don't just confirm the filing — teach the user what's in the article and why it matters. Be a research partner, not a filing system.
+
+> **wiki/ai/attention-mechanisms** — compiled from <source title>
 >
-> Connected to:
-> - wiki/ai/transformer-architecture (builds on)
-> - wiki/ai/scaling-laws (related concept)
+> **Key insight:** <the most important idea in this article, in 1-2 sentences>
+>
+> **What's new for the wiki:** <what this adds that the wiki didn't have before>
+>
+> **How it connects:** <explain WHY it connects to existing entries, not just that it does — e.g., "This challenges the assumption in wiki/ai/scaling-laws that..." or "This provides the mechanism behind what wiki/ai/transformer-architecture describes at a high level">
 >
 > **Reply with:**
 > - `research` to explore how this connects to existing wiki knowledge
@@ -373,19 +377,19 @@ When a human asks "research `<question>`" or "what does the wiki say about `<top
 
 If the wiki has no relevant entries, say so and suggest URLs to ingest.
 
-**Showing the derived entry — keep the research going:**
+**Showing the derived entry — teach and keep the research going:**
 
-After synthesizing, present the full answer along with gaps and follow-up options:
+After synthesizing, don't just dump the answer. Walk the user through the reasoning — what you found, how it connects, and what's surprising or missing. Be a research partner.
 
 > ## <Question as title>
 >
-> <synthesized answer>
+> <synthesized answer — explain the reasoning, not just the conclusion>
 >
-> **Sources used:** wiki/ai/attention, wiki/ai/memory-networks, wiki/ai/kv-cache
+> **What I connected:** <explain how the sources relate to each other and why that matters — e.g., "wiki/ai/attention describes the mechanism, but wiki/ai/kv-cache reveals the practical bottleneck that limits it at scale">
 >
-> **Gaps identified:**
-> - <topic the wiki doesn't cover yet>
-> - <assumption shared across sources that no entry challenges>
+> **What's surprising:** <highlight non-obvious findings, contradictions between sources, or unstated assumptions — e.g., "Interestingly, all three sources assume single-node training despite discussing scale">
+>
+> **What's missing:** <knowledge gaps, not just as a list but explained — e.g., "The wiki covers how attention works but has nothing on WHY certain attention patterns emerge, which would connect the mechanism to the scaling behavior">
 >
 > **Reply with:**
 > - `deeper` to research one of the gaps
@@ -455,21 +459,23 @@ Fixing a quality issue: create a new version with `::N` suffix.
 Filling a knowledge gap: derive a new article with `type:derived`, include reasoning trace.
 Always update contributor file after fixes.
 
-**After fixing, invite the user to keep going:**
+**After fixing, explain what was learned and invite the user to keep going:**
 
-> Fixed 3 quality issues, filled 2 knowledge gaps.
+Don't just list what was fixed — explain why the gaps mattered and what the new derived entries add to the user's understanding.
+
+> **Fixed 3 quality issues, filled 2 knowledge gaps.**
 >
-> New entries created:
-> - wiki/ai/reward-modeling (derived from wiki/ai/rlhf)
-> - wiki/tools/pip (derived from wiki/tools/uv)
+> **wiki/ai/reward-modeling** (derived from your wiki/ai/rlhf):
+> <1-2 sentences explaining what reward modeling is and why it matters for understanding RLHF — connect it back to what the user already has in the wiki>
+>
+> **wiki/tools/pip** (derived from your wiki/tools/uv):
+> <1-2 sentences explaining the relationship — e.g., "uv is a drop-in replacement for pip, so understanding pip's design explains why uv made the choices it did">
 >
 > **Reply with:**
 > - `research` to explore one of the new entries deeper
 > - `lint` to check your entries again
 > - `ingest` a URL to add more sources
 > - `done` to exit
-
-The new derived entries are fresh context — the user just filled gaps in their knowledge, so this is the best moment to keep exploring.
 
 ### Subscribe
 
