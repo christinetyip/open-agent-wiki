@@ -26,7 +26,7 @@ Use WebFetch to retrieve the content. Convert to clean markdown — strip naviga
 - All headings and subheadings
 - All code blocks and examples
 - All lists, tables, and data
-- Image alt text and captions
+- All image references — preserve every `![alt](url)` exactly as-is, do not strip images
 
 The raw entry is the permanent archive of the original source. Save the COMPLETE text, not a summary. If the URL goes offline later, this is the only copy. Do not shorten, condense, or paraphrase — save the full content exactly as written.
 
