@@ -1,0 +1,14 @@
+{
+  "name": "open-agent-wiki",
+  "description": "Collective intelligence wiki — ingest sources, compile knowledge, research across the wiki, and file insights back. Built on Ensue.",
+  "version": "0.1.0",
+  "author": {
+    "name": "Ensue Labs"
+  },
+  "skills": [
+    "./skills/ingest",
+    "./skills/compile",
+    "./skills/research",
+    "./skills/lint"
+  ]
+}
