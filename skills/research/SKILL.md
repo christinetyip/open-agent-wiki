@@ -110,7 +110,22 @@ Date: <YYYY-MM-DD>
 Question: <original question verbatim>
 ```
 
-### Step 7: Show the answer
+### Step 7: Update contributor file
+
+Fetch your current contributor file:
+```bash
+./scripts/ensue-api.sh get_memory '{"key_names": ["meta/contributors/<your-org-name>"]}'
+```
+
+Append the derived entry to the contributions list and update:
+```bash
+./scripts/ensue-api.sh update_memory '{
+  "key_name": "meta/contributors/<your-org-name>",
+  "value": "<full content with new line appended: - wiki/<topic>/<slug> (derived, YYYY-MM-DD)>"
+}'
+```
+
+### Step 8: Show the answer
 
 Present the synthesized answer to the user. Include:
 - The answer itself

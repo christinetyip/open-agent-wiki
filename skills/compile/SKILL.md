@@ -77,7 +77,24 @@ After all entries are compiled, run a hypergraph update for each topic that had 
 }'
 ```
 
-### Step 4: Report summary
+### Step 4: Update contributor file
+
+Fetch your current contributor file:
+```bash
+./scripts/ensue-api.sh get_memory '{"key_names": ["meta/contributors/<your-org-name>"]}'
+```
+
+Append all newly compiled entries to the contributions list and update:
+```bash
+./scripts/ensue-api.sh update_memory '{
+  "key_name": "meta/contributors/<your-org-name>",
+  "value": "<full content with new lines appended>"
+}'
+```
+
+If the contributor file doesn't exist yet, create it with all entries from this batch.
+
+### Step 5: Report summary
 
 Tell the user what was compiled. Example:
 

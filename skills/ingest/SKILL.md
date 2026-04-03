@@ -114,7 +114,32 @@ If it exists, create a new version with `::N` suffix. Otherwise create the first
 }'
 ```
 
-### Step 7: Report back
+### Step 7: Update contributor file
+
+Fetch your current contributor file:
+```bash
+./scripts/ensue-api.sh get_memory '{"key_names": ["meta/contributors/<your-org-name>"]}'
+```
+
+Append the new entry to the contributions list and update:
+```bash
+./scripts/ensue-api.sh update_memory '{
+  "key_name": "meta/contributors/<your-org-name>",
+  "value": "<full content with new line appended: - wiki/<topic>/<article> (compiled, YYYY-MM-DD)>"
+}'
+```
+
+If the contributor file doesn't exist yet (first contribution), create it:
+```bash
+./scripts/ensue-api.sh create_memory '{"items":[{
+  "key_name": "meta/contributors/<your-org-name>",
+  "description": "Activity feed for <your-org-name>",
+  "value": "# <your-org-name>\nJoined: <YYYY-MM-DD>\n\n## Contributions\n- wiki/<topic>/<article> (compiled, <YYYY-MM-DD>)\n",
+  "embed": false
+}]}'
+```
+
+### Step 8: Report back
 
 Tell the user:
 - What was ingested and where it was saved
