@@ -353,10 +353,40 @@ When a human asks "research `<question>`" or "what does the wiki say about `<top
 5. File back to wiki/<topic>/<question-slug> with type:derived
 6. Include reasoning trace (which entries, which connections)
 7. Update meta/contributors/<your-org-name>
-8. Show the synthesized answer to the human
+8. Show the derived entry to the human and invite follow-up
 ```
 
 If the wiki has no relevant entries, say so and suggest URLs to ingest.
+
+**Showing the derived entry — keep the research going:**
+
+After synthesizing, present the full answer along with gaps and follow-up options:
+
+> ## <Question as title>
+>
+> <synthesized answer>
+>
+> **Sources used:** wiki/ai/attention, wiki/ai/memory-networks, wiki/ai/kv-cache
+>
+> **Gaps identified:**
+> - <topic the wiki doesn't cover yet>
+> - <assumption shared across sources that no entry challenges>
+>
+> **Reply with:**
+> - `deeper` to research one of the gaps
+> - `challenge` to find contradictions or alternative views in the wiki
+> - A follow-up question to keep researching
+> - `done` to exit
+
+**If "deeper":** Ask which gap to explore, then run a new research cycle on that gap. File the result as another derived entry that references the previous one.
+
+**If "challenge":** Re-examine the sources for conflicting claims, unstated assumptions, or alternative interpretations. File as a derived entry with type:derived.
+
+**If a follow-up question:** Run a full research cycle on the new question, building on the context from the previous answer. The new derived entry references the previous one in its Sources section.
+
+**If "done":** Exit the research loop.
+
+Each follow-up files back another derived entry. Three questions deep and you've generated a chain of derived entries that maps out an entire topic area. Research compounds.
 
 ### My Entries
 
