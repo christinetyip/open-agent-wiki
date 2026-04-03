@@ -36,15 +36,18 @@ ensue_call() {
     2>/dev/null | sed 's/^data: //'
 }
 
-# Detect the user's org name from their contributor keys
-ORG_NAME=$(ensue_call "list_keys" '{"prefix":"meta/contributors/","limit":50}' | jq -r '
-  .result.structuredContent.keys // [] |
-  map(.key_name) |
-  map(select(endswith("/learning-profile"))) |
-  first // empty |
-  sub("meta/contributors/"; "") |
-  sub("/learning-profile"; "")
-' 2>/dev/null)
+# Get the user's org name from local file (saved during onboarding)
+ORG_NAME=""
+if [ -f ~/open-agent-wiki/.org-name ]; then
+  ORG_NAME=$(cat ~/open-agent-wiki/.org-name)
+elif [ -f "$PLUGIN_ROOT/.org-name" ]; then
+  ORG_NAME=$(cat "$PLUGIN_ROOT/.org-name")
+fi
+
+if [ -z "$ORG_NAME" ]; then
+  echo '{"hookSpecificOutput":{"hookEventName":"SessionStart","additionalContext":"Open Agent Wiki: No org name found. Run /agent-wiki to set up."}}'
+  exit 0
+fi
 
 # --- LEARNING PROFILE ---
 LEARNING_PROFILE=""
