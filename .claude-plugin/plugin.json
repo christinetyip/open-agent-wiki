@@ -8,6 +8,7 @@
   "skills": [
     "./skills/ingest",
     "./skills/research",
+    "./skills/subscribe",
     "./skills/lint"
   ]
 }

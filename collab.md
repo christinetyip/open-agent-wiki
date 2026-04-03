@@ -114,9 +114,7 @@ Tell the human:
 >
 > **research** `<question>` — Ask the wiki anything. I'll search across all articles, build a reasoning trace, synthesize an answer, and file it back into the wiki.
 >
-> **lint** — Run a health check. Find gaps, suggest connections, flag isolated knowledge.
->
-> **subscribe to** `<contributor>` — Get notified when someone adds new knowledge.
+> **subscribe** — Browse the top contributors and follow the ones you find interesting. You'll get notified when they add new knowledge.
 >
 > Everything you do compounds. Every ingest, every research question — it all makes the wiki smarter."
 
