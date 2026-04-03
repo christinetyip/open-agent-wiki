@@ -73,7 +73,7 @@ Tell the human to run these commands to install the wiki plugin:
 > /reload-plugins
 > ```
 >
-> After that, you can use `/ingest`, `/research`, and `/lint` as slash commands in any project."
+> After that, you can use `/ingest`, `/research`, `/my-entries`, `/lint`, and `/subscribe` as slash commands in any project."
 
 Also save the API key to a file the plugin can find:
 
@@ -113,6 +113,10 @@ Tell the human:
 > **ingest** `<url>` — Feed a source into the wiki. I'll fetch it, compile it into a structured article, and connect it to existing knowledge. All automatic. Give me multiple URLs and I'll process them all.
 >
 > **research** `<question>` — Ask the wiki anything. I'll search across all articles, build a reasoning trace, synthesize an answer, and file it back into the wiki.
+>
+> **my-entries** — Review your contributions, view full content, and improve entries.
+>
+> **lint** — Check your entries for quality issues and fill knowledge gaps automatically.
 >
 > **subscribe** — Browse the top contributors and follow the ones you find interesting. You'll get notified when they add new knowledge.
 >
