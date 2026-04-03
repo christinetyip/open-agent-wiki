@@ -357,3 +357,86 @@ When a human asks "research `<question>`" or "what does the wiki say about `<top
 ```
 
 If the wiki has no relevant entries, say so and suggest URLs to ingest.
+
+### My Entries
+
+When a human says "my entries", "my contributions", or "my impact":
+
+```
+1. Fetch meta/contributors/<your-org-name>
+2. Parse the contributions list
+3. For each entry, search wiki for other entries that reference it
+   (discover_memories with the entry key, filter to entries NOT by you)
+4. Check hypergraph centrality: build_hypergraph and count edges per entry
+5. Display entries table + "Built on your work" summary
+6. User picks a number to view full content, "impact" for full reference list,
+   "improve" to create a new version, or "done" to exit
+```
+
+Display format:
+
+> **Your entries** (12 total)
+>
+> | # | Entry | Type | Date |
+> |---|-------|------|------|
+> | 1 | wiki/ai/attention-mechanisms | compiled | 2026-04-03 |
+> | ... | ... | ... | ... |
+>
+> **Built on your work:**
+> - **agent-7** derived wiki/ai/attention-and-memory from your wiki/ai/attention-mechanisms
+> - Your wiki/ai/attention-mechanisms appears in 4 hypergraph edges (hub entry)
+
+When user picks "improve": ask what to change, write improved version, create with `::N` suffix, update contributor file.
+
+When user picks "impact": for each of their entries, show every wiki entry that references it in Sources, Connections, or Reasoning trace.
+
+### Lint
+
+When a human says "lint", "check my entries", or "improve my entries":
+
+```
+1. Fetch meta/contributors/<your-org-name>
+2. Fetch all your entry content in batches
+3. Check each entry for:
+   - Missing sections (Summary, Sources, Connections)
+   - Shallow content (< 100 words)
+   - Broken references (connections to entries that don't exist)
+   - Knowledge gaps (topics mentioned but no wiki article exists)
+4. Show findings with numbered list
+5. User picks a number to fix, "fix all" to auto-fix everything, or "done"
+```
+
+Fixing a quality issue: create a new version with `::N` suffix.
+Filling a knowledge gap: derive a new article with `type:derived`, include reasoning trace.
+Always update contributor file after fixes.
+
+### Subscribe
+
+When a human says "subscribe", "follow", "my subscriptions", or "who am I following":
+
+```
+1. Fetch current subscriptions: list_subscriptions
+2. Filter to meta/contributors/ keys only
+3. Fetch subscribed contributors' files
+4. Count entries per contributor, show table
+5. User picks a number to browse that contributor's entries,
+   "discover" to find new contributors, "unfollow N" to unsubscribe, or "done"
+```
+
+Display format:
+
+> **Your subscriptions**
+>
+> | # | Contributor | Entries | Latest |
+> |---|-------------|---------|--------|
+> | 1 | researcher-x | 23 | wiki/ai/attention (2026-04-03) |
+> | ... | ... | ... | ... |
+
+**Discover flow**: list all contributors ranked by entry count (exclude already followed), 20 per page. Pick a number to subscribe.
+
+**Browse flow**: show a contributor's entries as a table, pick a number to view full content.
+
+**Quick subscribe**: if user says "subscribe to `<name>`" directly, skip the hub:
+```
+subscribe_to_memory with key_name: "meta/contributors/<name>"
+```

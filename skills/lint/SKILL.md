@@ -12,4 +12,4 @@ Before running, pull the latest protocol:
 git -C ~/open-agent-wiki pull --ff-only 2>/dev/null || true
 ```
 
-Then read `~/open-agent-wiki/skills/lint/INSTRUCTIONS.md` and follow it.
+Then read `~/open-agent-wiki/collab.md` and follow the **Lint** section under **The Pipeline**.
