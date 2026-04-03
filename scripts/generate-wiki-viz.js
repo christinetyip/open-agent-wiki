@@ -15,6 +15,8 @@ import { fileURLToPath } from 'url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const PLUGIN_ROOT = join(__dirname, '..');
+const ORG_NAME = 'agent_wiki';
+const ORG_PREFIX = `@${ORG_NAME}/`;
 
 function getApiKey() {
     if (process.env.ENSUE_API_KEY) return process.env.ENSUE_API_KEY;
@@ -54,6 +56,7 @@ function parseDescription(desc) {
     let creator = 'unknown', type = 'compiled', version = 1, supersedes = null;
     for (const part of parts.slice(1)) {
         if (part.startsWith('added-by:')) creator = part.slice(9);
+        else if (part.startsWith('by:')) creator = part.slice(3);
         else if (part.startsWith('type:')) type = part.slice(5);
         else if (part.startsWith('v:')) version = parseInt(part.slice(2)) || 1;
         else if (part.startsWith('supersedes:')) supersedes = part.slice(11);
@@ -83,8 +86,9 @@ function parseHypergraph(text) {
 }
 
 async function fetchKeys(prefix) {
-    console.log(`Fetching ${prefix} keys...`);
-    const result = await ensueApi('list_keys', { prefix, limit: 500 });
+    const orgPrefix = ORG_PREFIX + prefix;
+    console.log(`Fetching ${orgPrefix} keys...`);
+    const result = await ensueApi('list_keys', { prefix: orgPrefix, limit: 500 });
     return result?.keys || [];
 }
 
@@ -94,7 +98,9 @@ async function fetchContent(keys) {
     const contents = {};
     for (let i = 0; i < keyNames.length; i += batchSize) {
         const batch = keyNames.slice(i, i + batchSize);
-        const result = await ensueApi('get_memory', { key_names: batch });
+        // get_memory needs the full @org/ prefix
+        const prefixedBatch = batch.map(k => ORG_PREFIX + k);
+        const result = await ensueApi('get_memory', { key_names: prefixedBatch });
         if (result?.results) {
             for (const item of result.results) {
                 if (item.value) contents[item.key_name] = item.value;
@@ -108,11 +114,30 @@ async function fetchContent(keys) {
 
 async function fetchHypergraph() {
     console.log('Fetching hypergraph...');
+    const allNodes = [];
+    const allEdges = [];
     try {
-        const result = await ensueApi('get_memory', { key_names: ['wiki/_graph/full'] });
-        if (result?.results?.[0]?.value) return parseHypergraph(result.results[0].value);
+        // Find all graph keys
+        const graphKeys = await ensueApi('list_keys', { prefix: ORG_PREFIX + 'wiki/_graph/', limit: 50 });
+        const keys = graphKeys?.keys?.map(k => ORG_PREFIX + k.key_name) || [];
+        if (keys.length === 0) return { nodes: allNodes, edges: allEdges };
+
+        // Fetch all graph data
+        const result = await ensueApi('get_memory', { key_names: keys });
+        if (result?.results) {
+            for (const item of result.results) {
+                if (item.value) {
+                    const parsed = parseHypergraph(item.value);
+                    // Merge, deduplicating nodes by key
+                    for (const node of parsed.nodes) {
+                        if (!allNodes.find(n => n.key === node.key)) allNodes.push(node);
+                    }
+                    allEdges.push(...parsed.edges);
+                }
+            }
+        }
     } catch (e) { /* no hypergraph yet */ }
-    return { nodes: [], edges: [] };
+    return { nodes: allNodes, edges: allEdges };
 }
 
 // Filter to latest versions only
@@ -143,6 +168,8 @@ function buildTree(wikiKeys, contents) {
         if (!article) continue;
 
         const meta = parseDescription(key.description);
+        // Use author_org_name from API as fallback for creator
+        const creator = (meta.creator !== 'unknown') ? meta.creator : (key.author_org_name || 'unknown');
 
         if (!topics[topic]) topics[topic] = [];
         topics[topic].push({
@@ -151,7 +178,7 @@ function buildTree(wikiKeys, contents) {
             baseKey: key.baseKey,
             description: meta.summary,
             content: contents[key.originalKey] || contents[key.baseKey] || '',
-            creator: meta.creator,
+            creator,
             type: meta.type,
             version: meta.version,
         });
