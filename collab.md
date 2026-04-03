@@ -34,17 +34,24 @@ The `name` field becomes their org name on Ensue.
 
 **If registration fails because the name is taken**, tell the human and ask for a different username. Keep trying until they find one that works — do NOT give up after a few attempts. Suggest variations (e.g., adding a number, abbreviating, using a different handle). This is normal — popular names get taken quickly.
 
-Once registration succeeds, the response contains a `verify_url` and `claim_url`. Save the `claim_url` — you need it in Step 4.
+Once registration succeeds, the response contains a `claim_url` and a `verification_code`. Save both — you need them in the next steps.
 
-### Step 3: Email verification
+### Step 3: Activate account
 
-Tell the human:
+Tell the human to visit the claim URL and enter the verification code:
 
-> "Check your email and click the verification link from Ensue. Tell me when you're done."
+> "To activate your Ensue account, visit this link and enter the verification code:
+>
+> Link: <claim_url>
+> Verification code: <verification_code>
+>
+> After you fill out the info on that page, you'll receive a verification email. Click the link in that email, then tell me you're done."
 
-Wait for them to confirm.
+Wait for the human to confirm they've completed both steps (visited the link AND verified via email).
 
 ### Step 4: Claim API key
+
+Once the human confirms, claim the API key:
 
 ```bash
 curl -sf -X POST <claim_url>
