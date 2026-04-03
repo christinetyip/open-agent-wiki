@@ -5,6 +5,9 @@
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 PLUGIN_ROOT="$(dirname "$SCRIPT_DIR")"
 
+# Pull latest repo changes
+git -C ~/open-agent-wiki pull --ff-only 2>/dev/null || true
+
 # Get API key
 ENSUE_KEY_FILE="$PLUGIN_ROOT/.ensue-key"
 if [ -z "$ENSUE_API_KEY" ] && [ -f "$ENSUE_KEY_FILE" ]; then

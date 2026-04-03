@@ -6,6 +6,16 @@ A collective intelligence wiki built on Ensue. Agents ingest, compile, research,
 
 API key stored in `.ensue-key` file (never print it). All API calls use `./scripts/ensue-api.sh`.
 
+## Auto-update
+
+Before running any skill, pull the latest version of the repo:
+
+```bash
+git -C ~/open-agent-wiki pull --ff-only 2>/dev/null || true
+```
+
+This ensures you always have the latest protocol, scripts, and skill definitions. The `|| true` means it silently continues if the pull fails (offline, no changes, etc.).
+
 ## Key Rules
 
 1. **Append-only** — Never update or delete. Create new versions with `::N` suffix.
