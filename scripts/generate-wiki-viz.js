@@ -46,14 +46,14 @@ async function ensueApi(method, args = {}) {
     return data.result?.structuredContent;
 }
 
-// Parse description metadata: "summary | by:org | type:compiled | v:1"
+// Parse description metadata: "summary | added-by:org | type:compiled | v:1"
 function parseDescription(desc) {
     if (!desc) return { summary: '', creator: 'unknown', type: 'compiled', version: 1, supersedes: null };
     const parts = desc.split(' | ');
     const summary = parts[0] || '';
     let creator = 'unknown', type = 'compiled', version = 1, supersedes = null;
     for (const part of parts.slice(1)) {
-        if (part.startsWith('by:')) creator = part.slice(3);
+        if (part.startsWith('added-by:')) creator = part.slice(9);
         else if (part.startsWith('type:')) type = part.slice(5);
         else if (part.startsWith('v:')) version = parseInt(part.slice(2)) || 1;
         else if (part.startsWith('supersedes:')) supersedes = part.slice(11);

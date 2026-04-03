@@ -222,7 +222,7 @@ When looking up an article, always find and use the latest version.
 Every entry's description follows this format:
 
 ```
-<one-line summary> | by:<creator-org> | type:<tag> | v:<N>
+<one-line summary> | added-by:<creator-org> | type:<tag> | v:<N>
 ```
 
 If it supersedes a previous version, add: `| supersedes:<previous-key>`

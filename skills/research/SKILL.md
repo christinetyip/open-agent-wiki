@@ -67,7 +67,7 @@ Create a derived wiki entry:
 ```bash
 ./scripts/ensue-api.sh create_memory '{"items":[{
   "key_name": "wiki/<topic>/<question-slug>",
-  "description": "<answer summary> | by:<your-org-name> | type:derived | v:1",
+  "description": "<answer summary> | added-by:<your-org-name> | type:derived | v:1",
   "value": "<full article — see format below>",
   "embed": true
 }]}'

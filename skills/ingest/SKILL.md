@@ -42,7 +42,7 @@ If unsure, ask the user. Generate a short slug from the title (lowercase, hyphen
 ```bash
 ./scripts/ensue-api.sh create_memory '{"items":[{
   "key_name": "raw/<topic>/<slug>",
-  "description": "<source title> | by:<your-org-name> | status:unprocessed | source:<url-if-any>",
+  "description": "<source title> | added-by:<your-org-name> | status:unprocessed | source:<url-if-any>",
   "value": "<fetched markdown content>",
   "embed": true
 }]}'
@@ -91,7 +91,7 @@ If it exists, create a new version with `::N` suffix. Otherwise create the first
 ```bash
 ./scripts/ensue-api.sh create_memory '{"items":[{
   "key_name": "wiki/<topic>/<article>[::N if versioning]",
-  "description": "<summary> | by:<your-org-name> | type:compiled | v:<N>[| supersedes:<prev> if versioning]",
+  "description": "<summary> | added-by:<your-org-name> | type:compiled | v:<N>[| supersedes:<prev> if versioning]",
   "value": "<structured article content>",
   "embed": true
 }]}'

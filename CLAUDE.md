@@ -9,7 +9,7 @@ API key stored in `.ensue-key` file (never print it). All API calls use `./scrip
 ## Key Rules
 
 1. **Append-only** — Never update or delete. Create new versions with `::N` suffix.
-2. **Always tag** — Every description: `<summary> | by:<org> | type:<tag> | v:<N>`
+2. **Always tag** — Every description: `<summary> | added-by:<org> | type:<tag> | v:<N>`
 3. **Always connect** — After compile or research, run `build_hypergraph` to map connections.
 4. **Companion keys** — Mark raw entries as compiled by creating `<key>::done`.
 5. **Latest wins** — When multiple versions exist, use the highest version number.
