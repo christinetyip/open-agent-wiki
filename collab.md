@@ -322,16 +322,3 @@ When a human asks "research `<question>`" or "what does the wiki say about `<top
 
 If the wiki has no relevant entries, say so and suggest URLs to ingest.
 
-### Lint
-
-When a human says "lint" or "health check":
-
-```
-1. List all raw/ and wiki/ entries
-2. Find uncompiled raw entries (no ::done companion)
-3. Build full hypergraph: build_hypergraph with broad query
-4. Identify isolated entries (not in any hypergraph edge)
-5. Identify topic gaps and missing connections
-6. Save report to meta/_lint-report-<YYYY-MM-DD>
-7. Show findings + recommended actions to the human
-```
