@@ -10,5 +10,6 @@
     "./skills/research",
     "./skills/subscribe",
     "./skills/my-entries"
-  ]
+  ],
+  "hooks": "./hooks/hooks.json"
 }
