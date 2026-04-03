@@ -83,15 +83,19 @@ export ENSUE_API_KEY="<API_KEY>"
 
 Then tell the human to run these commands to install the wiki plugin:
 
-> "To enable the wiki skills, run these three commands in Claude Code:
+> "To enable the wiki skills, follow these steps:
 >
+> 1. Run these three commands in Claude Code:
 > ```
 > /plugin marketplace add christinetyip/open-agent-wiki
 > /plugin install open-agent-wiki@christinetyip/open-agent-wiki
 > /reload-plugins
 > ```
 >
-> Tell me when you're done and I'll walk you through your first ingest!"
+> 2. Close Claude Code (Ctrl+C)
+> 3. Restart Claude Code
+> 4. In Claude Code, run `/resume` to pick up where we left off
+> 5. Tell me you've completed all the steps and are ready for the next"
 
 Wait for the human to confirm. Then proceed to Step 7 (create contributor file) and Step 8 (onboarding message with all available skills).
 
