@@ -18,13 +18,20 @@ If the user provides multiple URLs (e.g., "ingest these: url1, url2, url3"), pro
 
 ## Process (for each source)
 
-### Step 1: Fetch the source
+### Step 1: Fetch the FULL source content
 
 **If URL:**
-Use WebFetch to retrieve the content. Convert to clean markdown — strip nav, ads, boilerplate. Keep the core content, headings, code blocks, and images.
+Use WebFetch to retrieve the content. Convert to clean markdown — strip navigation, ads, cookie banners, sidebars, and footers. But keep ALL of the actual article content:
+- Every paragraph, in full — do NOT summarize or truncate
+- All headings and subheadings
+- All code blocks and examples
+- All lists, tables, and data
+- Image alt text and captions
+
+The raw entry is the permanent archive of the original source. Save the COMPLETE text, not a summary. If the URL goes offline later, this is the only copy. Do not shorten, condense, or paraphrase — save the full content exactly as written.
 
 **If raw text:**
-Use the text as-is.
+Use the text as-is, in full.
 
 ### Step 2: Determine topic and slug
 
@@ -37,13 +44,15 @@ Infer the topic category from the content. Use broad categories:
 
 If unsure, ask the user. Generate a short slug from the title (lowercase, hyphens, no special chars).
 
-### Step 3: Save to raw/
+### Step 3: Save FULL content to raw/
+
+Save the COMPLETE fetched content. Do not summarize, truncate, or condense. The raw entry must contain every word from the original source.
 
 ```bash
 ./scripts/ensue-api.sh create_memory '{"items":[{
   "key_name": "raw/<topic>/<slug>",
   "description": "<source title> | added-by:<your-org-name> | status:unprocessed | source:<url-if-any>",
-  "value": "<fetched markdown content>",
+  "value": "<THE FULL FETCHED CONTENT — every paragraph, heading, code block, list, table>",
   "embed": true
 }]}'
 ```
