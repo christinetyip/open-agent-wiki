@@ -24,13 +24,17 @@ This ensures you always have the latest protocol, scripts, and skill definitions
 4. **Companion keys** — Mark raw entries as compiled by creating `<key>::done`.
 5. **Latest wins** — When multiple versions exist, use the highest version number.
 6. **File back** — Research outputs go back into wiki/ with `type:derived`.
+7. **Update learning profile** — After every meaningful interaction, update the user's learning profile and contributions.
+8. **Be a research partner** — Teach the user, don't just file data. Reference what they already know from their learning profile.
 
 ## Namespace
 
 - `raw/` — Source material. Anyone creates. Auto-compiled on ingest.
 - `wiki/` — All knowledge. Compiled + derived + curated.
 - `wiki/_graph/` — Hypergraph snapshots and reasoning traces.
-- `meta/` — Contributors, stats, lint reports.
+- `meta/contributors/<org>/contributions` — What they created.
+- `meta/contributors/<org>/learning-profile` — What they know, open questions, last session.
+- `meta/contributors/<org>/sessions/<date>` — Session history.
 
 ## Security
 

@@ -1,6 +1,6 @@
 #!/bin/bash
-# Session start hook — checks subscriptions for new entries since last session
-# Returns a digest of what followed contributors have added
+# Session start hook — loads learning profile + subscription digest
+# Returns context for the agent to personalize the session
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 PLUGIN_ROOT="$(dirname "$SCRIPT_DIR")"
@@ -12,6 +12,11 @@ git -C ~/open-agent-wiki pull --ff-only 2>/dev/null || true
 ENSUE_KEY_FILE="$PLUGIN_ROOT/.ensue-key"
 if [ -z "$ENSUE_API_KEY" ] && [ -f "$ENSUE_KEY_FILE" ]; then
   ENSUE_API_KEY=$(cat "$ENSUE_KEY_FILE")
+fi
+
+# Also check home directory key file
+if [ -z "$ENSUE_API_KEY" ] && [ -f ~/open-agent-wiki/.ensue-key ]; then
+  ENSUE_API_KEY=$(cat ~/open-agent-wiki/.ensue-key)
 fi
 
 if [ -z "$ENSUE_API_KEY" ]; then
@@ -31,85 +36,105 @@ ensue_call() {
     2>/dev/null | sed 's/^data: //'
 }
 
-# Get current subscriptions
+# Detect the user's org name from their contributor keys
+ORG_NAME=$(ensue_call "list_keys" '{"prefix":"meta/contributors/","limit":50}' | jq -r '
+  .result.structuredContent.keys // [] |
+  map(.key_name) |
+  map(select(endswith("/learning-profile"))) |
+  first // empty |
+  sub("meta/contributors/"; "") |
+  sub("/learning-profile"; "")
+' 2>/dev/null)
+
+# --- LEARNING PROFILE ---
+LEARNING_PROFILE=""
+if [ -n "$ORG_NAME" ] && [ "$ORG_NAME" != "null" ]; then
+  LP_RESULT=$(ensue_call "get_memory" "{\"key_names\":[\"@agent_wiki/meta/contributors/$ORG_NAME/learning-profile\"]}")
+  LEARNING_PROFILE=$(echo "$LP_RESULT" | jq -r '.result.structuredContent.results[0].value // empty' 2>/dev/null)
+fi
+
+# --- SUBSCRIPTION DIGEST ---
 SUBS_RESULT=$(ensue_call "list_subscriptions" '{}')
 
-# Extract subscribed contributor keys (meta/contributors/*)
 CONTRIB_KEYS=$(echo "$SUBS_RESULT" | jq -r '
   .result.structuredContent.subscriptions // [] |
-  [.[] | select(.key_name | startswith("meta/contributors/")) | .key_name] |
+  [.[] | select(.key_name | contains("meta/contributors/")) | .key_name] |
   join(",")
 ' 2>/dev/null)
 
-if [ -z "$CONTRIB_KEYS" ] || [ "$CONTRIB_KEYS" = "" ]; then
-  echo '{"hookSpecificOutput":{"hookEventName":"SessionStart","additionalContext":"Open Agent Wiki: No subscriptions. Use /subscribe to follow contributors."}}'
-  exit 0
+DIGEST=""
+if [ -n "$CONTRIB_KEYS" ] && [ "$CONTRIB_KEYS" != "" ]; then
+  KEY_ARRAY=$(echo "$CONTRIB_KEYS" | jq -R 'split(",")' 2>/dev/null)
+  CONTRIB_DATA=$(ensue_call "get_memory" "{\"key_names\":$KEY_ARRAY}")
+
+  LAST_CHECK_FILE="$PLUGIN_ROOT/.last-subscription-check"
+  LAST_CHECK=""
+  if [ -f "$LAST_CHECK_FILE" ]; then
+    LAST_CHECK=$(cat "$LAST_CHECK_FILE")
+  fi
+
+  date -u +"%Y-%m-%dT%H:%M:%SZ" > "$LAST_CHECK_FILE"
+
+  DIGEST=$(echo "$CONTRIB_DATA" | jq -r '
+    .result.structuredContent.results // [] |
+    map(select(.value != null)) |
+    map(
+      {
+        name: (.key_name | sub(".*/contributors/"; "") | sub("/contributions"; "")),
+        value: .value
+      }
+    ) |
+    map(
+      .name as $name |
+      .value |
+      split("\n") |
+      map(select(startswith("- "))) |
+      if length > 0 then
+        "\($name) — \(length) entries:\n\(map("  " + .) | join("\n"))"
+      else
+        empty
+      end
+    ) |
+    join("\n\n")
+  ' 2>/dev/null)
 fi
 
-# Convert comma-separated keys to JSON array for get_memory
-KEY_ARRAY=$(echo "$CONTRIB_KEYS" | jq -R 'split(",")' 2>/dev/null)
+# --- BUILD CONTEXT ---
+CONTEXT="OPEN AGENT WIKI — SESSION START
 
-# Fetch contributor files
-CONTRIB_DATA=$(ensue_call "get_memory" "{\"key_names\":$KEY_ARRAY}")
+You are connected to the Open Agent Wiki. Read ~/open-agent-wiki/collab.md for the full protocol."
 
-# Get the last-checked timestamp (stored locally)
-LAST_CHECK_FILE="$PLUGIN_ROOT/.last-subscription-check"
-LAST_CHECK=""
-if [ -f "$LAST_CHECK_FILE" ]; then
-  LAST_CHECK=$(cat "$LAST_CHECK_FILE")
+if [ -n "$LEARNING_PROFILE" ] && [ "$LEARNING_PROFILE" != "null" ]; then
+  CONTEXT="$CONTEXT
+
+<learning-profile>
+$LEARNING_PROFILE
+</learning-profile>
+
+Use this learning profile to personalize the session. Reference what the user explored before, build on their existing understanding, and prioritize their open questions. If they had a last session, greet them with context: \"Last time you were exploring X. You had an open question about Y. Want to pick up there, or start something new?\""
 fi
 
-# Save current timestamp
-date -u +"%Y-%m-%dT%H:%M:%SZ" > "$LAST_CHECK_FILE"
-
-# Build the digest by extracting contributions from each contributor
-DIGEST=$(echo "$CONTRIB_DATA" | jq -r --arg last_check "$LAST_CHECK" '
-  .result.structuredContent.results // [] |
-  map(
-    {
-      name: (.key_name | sub("meta/contributors/"; "")),
-      value: .value
-    }
-  ) |
-  map(
-    .name as $name |
-    .value |
-    split("\n") |
-    map(select(startswith("- "))) |
-    if ($last_check != "") then
-      map(select(. | test($last_check | split("T")[0]; "x") | not)) |
-      # Keep entries with dates >= last_check date
-      # Simple approach: include all since we cannot reliably filter by date in jq
-      .
-    else
-      .
-    end |
-    if length > 0 then
-      "\($name) — \(length) entries:\n\(map("  " + .) | join("\n"))"
-    else
-      empty
-    end
-  ) |
-  join("\n\n")
-' 2>/dev/null)
-
-if [ -z "$DIGEST" ] || [ "$DIGEST" = "" ]; then
-  echo '{"hookSpecificOutput":{"hookEventName":"SessionStart","additionalContext":"Open Agent Wiki: You are following contributors but no new entries found. Use /ingest to add to the wiki or /subscribe to manage subscriptions."}}'
-  exit 0
-fi
-
-# Build context for Claude
-CONTEXT="OPEN AGENT WIKI — SUBSCRIPTION DIGEST
-
-You are connected to the Open Agent Wiki. The user follows contributors who have entries. Show this digest briefly at the start of the session:
+if [ -n "$DIGEST" ] && [ "$DIGEST" != "" ]; then
+  CONTEXT="$CONTEXT
 
 <subscription-digest>
 $DIGEST
 </subscription-digest>
 
-Present this as a short \"While you were away\" summary. Keep it concise — just contributor names and their entry titles. Then say: \"Use /subscribe to browse their entries, or continue with your work.\"
+Also briefly mention what followed contributors have added since last time."
+fi
 
-Do NOT skip this. Show the digest before doing anything else."
+if [ -z "$LEARNING_PROFILE" ] || [ "$LEARNING_PROFILE" = "null" ]; then
+  if [ -z "$DIGEST" ] || [ "$DIGEST" = "" ]; then
+    CONTEXT="$CONTEXT
+
+No learning profile or subscriptions found. Greet the user and remind them they can use /ingest, /research, /my-entries, /lint, or /subscribe."
+  fi
+fi
+
+CONTEXT="$CONTEXT
+
+IMPORTANT: After greeting, update or create today's session entry at meta/contributors/$ORG_NAME/sessions/$(date -u +%Y-%m-%d) throughout this session. Update the learning profile after meaningful interactions."
 
 echo "$CONTEXT" | jq -Rs '{
   hookSpecificOutput: {
