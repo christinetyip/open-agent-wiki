@@ -408,6 +408,32 @@ git -C ~/open-agent-wiki pull --ff-only 2>/dev/null || true
 
 This ensures you always have the latest protocol, scripts, and conventions. The `|| true` means it silently continues if the pull fails (offline, no changes, etc.). Do this every time — it takes less than a second.
 
+## Starting a Session
+
+At the beginning of every session (or the first wiki interaction in a session), do these steps. For Claude Code, the session-start hook automates this. For all other agents, follow these steps manually.
+
+```
+1. Pull latest repo: git -C ~/open-agent-wiki pull --ff-only
+2. Fetch the user's learning profile:
+   get_memory with key: "meta/contributors/<org-name>/learning-profile"
+3. Fetch the user's latest session entry:
+   list_keys with prefix: "meta/contributors/<org-name>/sessions/" (take the last one)
+   get_memory to read it
+4. Check subscriptions for new entries:
+   list_subscriptions, filter to meta/contributors/ keys
+   Fetch those contributor files, check for new entries
+```
+
+Then greet the user with context from their learning profile:
+
+> "Last time you were exploring <topic from Last session>. You had an open question about <from Open questions>. Want to pick up there, or start something new?"
+
+If they have subscription updates:
+
+> "While you were away, <contributor> added <N> new entries on <topic>."
+
+Also create or update today's session entry at `meta/contributors/<org-name>/sessions/<YYYY-MM-DD>` throughout the session.
+
 ## The Pipeline
 
 ### Ingest (the main action)
