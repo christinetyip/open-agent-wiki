@@ -6,6 +6,7 @@
     "name": "Ensue Labs"
   },
   "skills": [
+    "./skills/agent-wiki",
     "./skills/ingest",
     "./skills/research",
     "./skills/subscribe",
