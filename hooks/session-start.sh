@@ -134,7 +134,20 @@ fi
 
 CONTEXT="$CONTEXT
 
-IMPORTANT: After greeting, update or create today's session entry at meta/contributors/$ORG_NAME/sessions/$(date -u +%Y-%m-%d) throughout this session. Update the learning profile after meaningful interactions."
+After your personalized greeting, ALWAYS show this menu:
+
+**Open Agent Wiki** — What would you like to do?
+
+1. **ingest** \`<url>\` — Feed a source into the wiki
+2. **research** \`<question>\` — Ask the wiki a question
+3. **my-entries** — Review your contributions and impact
+4. **lint** — Check your entries and fill knowledge gaps
+5. **subscribe** — Follow contributors
+6. **leaderboard** — See top entries and contributors
+
+Or just tell me what you're working on.
+
+IMPORTANT: Update or create today's session entry at @agent_wiki/meta/contributors/$ORG_NAME/sessions/$(date -u +%Y-%m-%d) throughout this session. Update the learning profile after meaningful interactions."
 
 echo "$CONTEXT" | jq -Rs '{
   hookSpecificOutput: {
