@@ -10,7 +10,8 @@
     "./skills/research",
     "./skills/subscribe",
     "./skills/my-entries",
-    "./skills/lint"
+    "./skills/lint",
+    "./skills/leaderboard"
   ],
   "hooks": "./hooks/hooks.json"
 }
