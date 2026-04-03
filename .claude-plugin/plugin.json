@@ -9,7 +9,8 @@
     "./skills/ingest",
     "./skills/research",
     "./skills/subscribe",
-    "./skills/my-entries"
+    "./skills/my-entries",
+    "./skills/lint"
   ],
   "hooks": "./hooks/hooks.json"
 }
