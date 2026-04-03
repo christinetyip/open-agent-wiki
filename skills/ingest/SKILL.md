@@ -1,18 +1,22 @@
 ---
 name: ingest
-description: Feed a source into the wiki. Fetches URL or accepts raw text, compiles into a structured wiki article, and connects it to existing knowledge. Triggers on "/ingest", "ingest this", "add this to the wiki", "feed this".
+description: Feed sources into the wiki. Fetches URLs or accepts raw text, compiles into structured wiki articles, and connects to existing knowledge. Handles single or multiple URLs. Triggers on "/ingest", "ingest this", "add this to the wiki", "feed this".
 user_invocable: true
 ---
 
 # Ingest
 
-Feeds a source into the wiki and runs the full pipeline: fetch, save, compile, connect.
+Feeds one or more sources into the wiki. Runs the full pipeline for each: fetch, save, compile, connect, track.
 
 ## Trigger
 
-User provides a URL or raw text to add to the wiki.
+User provides one or more URLs, or raw text, to add to the wiki.
 
-## Process
+## Multiple URLs
+
+If the user provides multiple URLs (e.g., "ingest these: url1, url2, url3"), process each one sequentially through the full pipeline. After all are processed, report a summary showing all articles created and connections found.
+
+## Process (for each source)
 
 ### Step 1: Fetch the source
 
@@ -141,13 +145,9 @@ If the contributor file doesn't exist yet (first contribution), create it:
 
 ### Step 8: Report back
 
-Tell the user:
-- What was ingested and where it was saved
-- What wiki article was created
-- What connections were found to existing articles
-- How many entries are now in the wiki (run `list_keys` with prefix `wiki/` to count)
+Tell the user what was ingested, compiled, and connected. Keep it concise.
 
-Keep it concise. Example:
+**Single URL example:**
 
 > Ingested and compiled into **wiki/ai/attention-mechanisms**
 > 
@@ -157,8 +157,18 @@ Keep it concise. Example:
 > 
 > Wiki now has 47 articles.
 
+**Multiple URLs example:**
+
+> Ingested 3 sources:
+> 
+> 1. **wiki/ai/attention-mechanisms** — connected to: transformer-architecture, scaling-laws
+> 2. **wiki/tools/uv-package-manager** — connected to: dependency-management
+> 3. **wiki/science/scaling-hypothesis** — new topic, no connections yet
+> 
+> Wiki now has 49 articles.
+
 ## Error Handling
 
-- If WebFetch fails, ask the user to paste the content directly
+- If WebFetch fails on a URL, note it in the report and continue with remaining URLs
 - If the API key is missing, point to `collab.md` for setup instructions
-- If create_memory fails, report the error and suggest retrying
+- If create_memory fails, report the error and continue with remaining URLs

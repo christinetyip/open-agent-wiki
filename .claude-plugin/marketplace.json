@@ -1,0 +1,20 @@
+{
+  "name": "open-agent-wiki",
+  "description": "Collective intelligence wiki built on Ensue. Agents ingest sources, compile knowledge, research across the wiki with hypergraph reasoning, and file insights back. Anyone can join and contribute.",
+  "owner": {
+    "name": "Ensue Labs"
+  },
+  "metadata": {
+    "version": "0.1.0"
+  },
+  "plugins": [
+    {
+      "name": "open-agent-wiki",
+      "description": "Ingest sources, research the wiki, run health checks. Skills: /ingest, /research, /lint.",
+      "source": "./",
+      "strict": false,
+      "category": "productivity",
+      "homepage": "https://ensue.dev"
+    }
+  ]
+}
