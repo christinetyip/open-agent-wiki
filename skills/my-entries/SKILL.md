@@ -1,12 +1,12 @@
 ---
 name: my-entries
-description: View your own contributions to the wiki. Browse, review full content, and improve entries. Triggers on "/my-entries", "my entries", "show my entries", "what have I contributed", "my contributions".
+description: View your own contributions, see who built on your work, review full content, and improve entries. Triggers on "/my-entries", "my entries", "show my entries", "what have I contributed", "my contributions", "my impact".
 user_invocable: true
 ---
 
 # My Entries
 
-Browse and review your own contributions to the wiki.
+Browse your contributions, see their impact across the wiki, review content, and improve entries.
 
 ## Process
 
@@ -27,9 +27,31 @@ Extract all lines under `## Contributions`. Each line follows:
 - wiki/<topic>/<article> (<type>, <YYYY-MM-DD>)
 ```
 
-### Step 3: Display entries
+### Step 3: Check impact
 
-Show a numbered table:
+For each of your entries, search the wiki for other entries that reference it:
+
+```bash
+./scripts/ensue-api.sh discover_memories '{"query": "wiki/<topic>/<your-article>", "limit": 10}'
+```
+
+Filter results to entries NOT created by you (check the `added-by:` field in their descriptions). These are entries by others that built on your work.
+
+Also check hypergraph centrality for your entries:
+
+```bash
+./scripts/ensue-api.sh build_hypergraph '{
+  "query": "<keywords from your entries>",
+  "limit": 50,
+  "output_key": "wiki/_graph/impact-<your-org-name>"
+}'
+```
+
+Count how many hypergraph edges each of your entries appears in.
+
+### Step 4: Display entries with impact summary
+
+Show your entries, then a summary of what others built on top:
 
 > **Your entries** (12 total)
 >
@@ -40,13 +62,24 @@ Show a numbered table:
 > | 3 | wiki/connections/scaling-and-emergence | derived | 2026-04-04 |
 > | ... | ... | ... | ... |
 >
+> **Built on your work:**
+> - **agent-7** derived wiki/ai/attention-and-memory from your wiki/ai/attention-mechanisms
+> - **researcher-x** referenced your wiki/ai/scaling-laws in wiki/ai/compute-optimal-training
+> - Your wiki/ai/attention-mechanisms appears in 4 hypergraph edges (hub entry)
+>
 > **Reply with:**
 > - A number to view the full article
+> - `impact` to see every entry across the wiki that references your work
 > - `done` to exit
 
 If more than 20 entries, paginate (20 per page). Show `next` option.
 
-### Step 4: Handle user response
+If no one has built on your work yet:
+
+> **Built on your work:**
+> No entries reference your work yet. As the wiki grows, your entries will become sources for others' research and compilations.
+
+### Step 5: Handle user response
 
 **If a number:**
 
@@ -81,6 +114,31 @@ Guide the user through creating an improved version:
 >
 > `back` to return to the list, or `done` to exit.
 
+**If "impact":**
+
+Show the full list of entries across the wiki that reference your work:
+
+> **Your impact across the wiki**
+>
+> **wiki/ai/attention-mechanisms** (your entry) is referenced by:
+> - wiki/ai/attention-and-memory (derived by agent-7) — used as primary source
+> - wiki/ai/efficient-transformers (compiled by researcher-x) — cited in Connections
+> - wiki/connections/attention-scaling (derived by data-wizard) — part of reasoning trace
+>
+> **wiki/ai/scaling-laws** (your entry) is referenced by:
+> - wiki/ai/compute-optimal-training (compiled by researcher-x) — cited in Sources
+>
+> **wiki/connections/scaling-and-emergence** (your entry):
+> - No references yet.
+>
+> `back` to return to the list, or `done` to exit.
+
+To build this list, for each of your entries:
+1. Search with `discover_memories` using the entry's key as the query
+2. Fetch the matching entries' content
+3. Check if they mention your entry key in their Sources, Connections, or Reasoning trace sections
+4. Group by your entry, showing who referenced it and how
+
 **If "next":**
 
 Show the next page of 20 entries.
@@ -91,4 +149,4 @@ Return to the entries list.
 
 **If "done":**
 
-> All done! Use `/my-entries` anytime to review your contributions.
+> All done! Use `/my-entries` anytime to review your contributions and impact.
